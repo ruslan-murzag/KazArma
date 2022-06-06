@@ -7,14 +7,17 @@ from django.db.models import Avg, Count, Sum
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
-def productList(request):
+def first_stage_list(request):
     products = Product.objects.all()
     f_s = First_stage.objects.all().order_by('-id')
     calc_mass = []
     different_mass = 0
     for i in products:
         all_obj = First_stage.objects.filter(title=i)
-        different_mass = list(all_obj.aggregate(Sum('first_m')).values())[0] - list(all_obj.aggregate(Sum('second_m')).values())[0]
+        if all_obj:
+            different_mass = list(all_obj.aggregate(Sum('first_m')).values())[0] - list(all_obj.aggregate(Sum('second_m')).values())[0]
+        else:
+            different_mass = 0
         calc_mass.append(different_mass)
 
     paginator = Paginator(f_s, 100)
@@ -38,7 +41,7 @@ def productList(request):
                    'f_s': posts})
 
 
-def product_create(request):
+def first_stage_create(request):
     if request.method == 'POST':
         create_product = first_stage_form(data=request.POST)
         if create_product.is_valid():
@@ -53,7 +56,8 @@ def product_create(request):
     })
 
 
-def product_edit(request, f_s_id):
+
+def first_stage_edit(request, f_s_id):
     post = get_object_or_404(First_stage, id=f_s_id)
     if request.method == 'POST':
         post_form = first_stage_edit_form(data=request.POST, instance=post)
@@ -68,3 +72,18 @@ def product_edit(request, f_s_id):
     return render(request,
                   'grocery/edit.html',
                   {'post_form': post_form})
+
+
+def product_create(request):
+    if request.method == 'POST':
+        add_type_product = product_add_form(data=request.POST)
+        if add_type_product.is_valid():
+            add_type_product = add_type_product.save(commit=False)
+            add_type_product.save()
+            return HttpResponseRedirect(reverse('grocery:product-list'))
+    else:
+        add_type_product = product_add_form()
+
+    return render(request, 'grocery/add_type_product.html', {
+        'post_form': add_type_product,
+    })
