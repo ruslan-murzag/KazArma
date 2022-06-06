@@ -13,8 +13,8 @@ class First_stage(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     numbers_auto = models.CharField(max_length=15)
-    first_m = models.IntegerField(blank=True, null=True)
-    second_m = models.IntegerField(blank=True, null=True)
+    first_m = models.IntegerField(default=0, blank=True)
+    second_m = models.IntegerField(default=0, blank=True)
 
     # product_m = models.IntegerField(blank=True)
 
@@ -22,7 +22,7 @@ class First_stage(models.Model):
     def calc(self):
         if self.second_m is not None and self.first_m is not None:
             return self.first_m - self.second_m
-        return
+        return 0
 
     def __str__(self):
         return self.numbers_auto

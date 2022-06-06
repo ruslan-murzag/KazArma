@@ -1,0 +1,43 @@
+a{
+    text-decoration: none;
+    color: black;
+}
+label {
+    float:left;
+    clear:both;
+    color:#333;
+    margin-bottom:4px;
+    width: 300px;
+}
+form p{
+    width: 300px;
+}
+form{
+    margin-top: 4em;
+}
+input, textarea {
+    clear:both;
+    float:left;
+    margin:0 0 10px;
+    background:#efefef;
+    border:0;
+    padding:6px 10px;
+    font-size:14px;
+}
+.box-shadow{
+    text-align: center;
+}
+
+header div{
+    justify-content: space-between;
+}
+.container{
+    max-width: 1200px;
+    margin: 0 auto;
+}
+#content{
+    margin-top: 20px;
+}
+h2{
+    text-align: center;
+}

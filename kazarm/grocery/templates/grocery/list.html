@@ -2,10 +2,12 @@
 {% block title %} Hello {% endblock %}
 {% block content%}
 <div class="container">
-    <h2>Таблицы первой сортировки</h2>
-    <div class="table-responsive">
-            <table class="table table-striped table-sm">
-              <thead>
+    <div class="row">
+        <h2>Таблицы первой сортировки</h2>
+    <div class="table-responsive col-8">
+        <h3>Таблица всех всех приходов</h3>
+        <table class="table table-striped table-sm">
+            <thead>
                 <tr>
                   <th>#</th>
                   <th>Продукт</th>
@@ -14,11 +16,11 @@
                   <th>Время ухода</th>
                   <th>Масса груза(кг)</th>
                 </tr>
-              </thead>
-              <tbody>
+            </thead>
+            <tbody>
                 {% for i in f_s %}
                 <tr>
-                  <td>{{ i.id }}</td>
+                  <td><a href="{% url 'grocery:product_edit' i.id %}">{{ i.id }}</a></td>
                   <td>{{ i.title }}</td>
                   <td>{{ i.numbers_auto }}</td>
                   <td>{{ i.created }}</td>
@@ -26,8 +28,35 @@
                   <td>{{ i.calc }}</td>
                 </tr>
                 {% endfor %}
-              </tbody>
-            </table>
-          </div>
+                {% include "pagination.html" with page=f_s %}
+
+            </tbody>
+        </table>
+
+    </div>
+
+
+     <div class="table-responsive col-4">
+        <h3>Таблица общего количества продуктов</h3>
+        <table class="table table-striped table-sm">
+            <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Продукт</th>
+                  <th>Масса</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product, mass in product_mass %}
+                <tr>
+                  <td>{{ product.id }}</td>
+                  <td>{{ product.title }}</td>
+                  <td>{{ mass }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    </div>
 </div>
 {% endblock %}
