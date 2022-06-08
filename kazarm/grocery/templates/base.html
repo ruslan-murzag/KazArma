@@ -14,12 +14,17 @@
         <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-12 mb-12 bg-white border-bottom box-shadow">
       <h5 class="my-0 mr-md-auto font-weight-normal"><a href="{% url 'grocery:product-list' %}">KazArmaProm</a></h5>
       <nav class="my-2 my-md-0 mr-md-3">
-        <a class="p-2 text-dark" href="{% url 'grocery:product_create' %}">Добавить запись</a>
-        <a class="p-2 text-dark" href="{% url 'grocery:product_type_add' %}">Добавить продукт</a>
+        <a class="p-2 text-dark" href="{% url 'grocery:product-list' %}">Первая сортировка</a>
 <!--        <a class="p-2 text-dark" href="#">Support</a>-->
 <!--        <a class="p-2 text-dark" href="#">Pricing</a>-->
+          {% if request.user.is_authenticated %}
+{#                Hello {{ request.user.first_name }},#}
+                <a class="btn btn-outline-primary" href="{% url "logout" %}">Выйти</a>
+          {% else %}
+              <a class="btn btn-outline-primary" href="{% url "login" %}">Войти</a>
+            {% endif %}
       </nav>
-      <a class="btn btn-outline-primary" href="#">Войти</a>
+
     </div>
 </header>
 

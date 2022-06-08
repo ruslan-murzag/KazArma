@@ -5,9 +5,12 @@ from .forms import *
 from django.urls import reverse
 from django.db.models import Avg, Count, Sum
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def first_stage_list(request):
+
     products = Product.objects.all()
     f_s = First_stage.objects.all().order_by('-id')
     calc_mass = []
@@ -34,13 +37,14 @@ def first_stage_list(request):
 
     product_mass = dict(zip(products, calc_mass))
     return render(request,
-                  'grocery/list.html',
+                  'grocery/first_stage/main.html',
                   {'products': products,
                    'page': page,
                    'product_mass': product_mass.items(),
                    'f_s': posts})
 
 
+@login_required
 def first_stage_create(request):
     if request.method == 'POST':
         create_product = first_stage_form(data=request.POST)
@@ -51,12 +55,12 @@ def first_stage_create(request):
     else:
         create_post_form = first_stage_form()
 
-    return render(request, 'grocery/add_product_st1.html', {
+    return render(request, 'grocery/first_stage/add_item.html', {
         'post_form': create_post_form,
     })
 
 
-
+@login_required
 def first_stage_edit(request, f_s_id):
     post = get_object_or_404(First_stage, id=f_s_id)
     if request.method == 'POST':
@@ -70,11 +74,15 @@ def first_stage_edit(request, f_s_id):
         post_form = first_stage_edit_form(instance=post)
 
     return render(request,
-                  'grocery/edit.html',
+                  'grocery/first_stage/edit_item.html',
                   {'post_form': post_form})
 
-
+@login_required
 def product_create(request):
+    if list(request.user.groups.all())[0].name == 'Админ':
+        print('He is admin')
+    else:
+        print('Not admin')
     if request.method == 'POST':
         add_type_product = product_add_form(data=request.POST)
         if add_type_product.is_valid():
@@ -84,6 +92,6 @@ def product_create(request):
     else:
         add_type_product = product_add_form()
 
-    return render(request, 'grocery/add_type_product.html', {
+    return render(request, 'grocery/first_stage/add_product.html', {
         'post_form': add_type_product,
     })
