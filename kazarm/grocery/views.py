@@ -79,10 +79,6 @@ def first_stage_edit(request, f_s_id):
 
 @login_required
 def product_create(request):
-    if list(request.user.groups.all())[0].name == 'Админ':
-        print('He is admin')
-    else:
-        print('Not admin')
     if request.method == 'POST':
         add_type_product = product_add_form(data=request.POST)
         if add_type_product.is_valid():
