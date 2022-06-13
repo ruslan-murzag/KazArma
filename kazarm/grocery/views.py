@@ -1,7 +1,7 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from .models import *
-from .forms import *
+from .models import Product, First_stage
+from .forms import first_stage_form, product_add_form, first_stage_edit_form
 from django.urls import reverse
 from django.db.models import Avg, Count, Sum
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
