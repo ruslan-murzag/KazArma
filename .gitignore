@@ -141,3 +141,5 @@ media
 .env.dev
 .env.prod
 .env.prod.db
+
+/db

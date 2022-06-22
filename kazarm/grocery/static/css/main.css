@@ -6,10 +6,10 @@ label {
     width: 300px;
 }
 form p{
-    width: 300px;
+    width: 200px;
 }
 form{
-    margin-top: 4em;
+    margin-top: 2em;
 }
 input, textarea {
     clear:both;

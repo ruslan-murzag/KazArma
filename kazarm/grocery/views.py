@@ -1,7 +1,7 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from .models import Product, First_stage
-from .forms import first_stage_form, product_add_form, first_stage_edit_form
+from .models import Product, First_stage, Container
+from .forms import *
 from django.urls import reverse
 from django.db.models import Avg, Count, Sum
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -23,7 +23,7 @@ def first_stage_list(request):
             different_mass = 0
         calc_mass.append(different_mass)
 
-    paginator = Paginator(f_s, 100)
+    paginator = Paginator(f_s, 50)
     page = request.GET.get('page')
     try:
         posts = paginator.page(page)
@@ -91,3 +91,59 @@ def product_create(request):
     return render(request, 'grocery/first_stage/add_product.html', {
         'post_form': add_type_product,
     })
+
+
+@login_required
+def container_list(request):
+    containers = Container.objects.all().order_by('-id')
+
+    paginator = Paginator(containers, 50)
+    page = request.GET.get('page')
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer deliver the first page
+        posts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range deliver last page of results
+        posts = paginator.page(paginator.num_pages)
+
+    return render(request,
+                  'grocery/containers/list.html',
+                  {'page': page,
+                   'posts': posts
+                   })
+
+
+@login_required
+def container_create(request):
+    if request.method == 'POST':
+        create_container = container_create_form(data=request.POST)
+        if create_container.is_valid():
+            create_container = create_container.save(commit=False)
+            create_container.save()
+            return HttpResponseRedirect(reverse('grocery:containers_list'))
+    else:
+        create_container = container_create_form()
+
+    return render(request, 'grocery/containers/add_item.html', {
+        'post_form': create_container,
+    })
+
+
+@login_required
+def container_edit(request, container_id):
+    container = get_object_or_404(Container, id=container_id)
+    if request.method == 'POST':
+        container_form = container_edit_form(data=request.POST, instance=container)
+
+        if container_form.is_valid():
+            container_form = container_form.save(commit=False)
+            container_form.save()
+            return HttpResponseRedirect(reverse('grocery:containers_list'))
+    else:
+        container_form = container_edit_form(instance=container)
+
+    return render(request,
+                  'grocery/containers/edit_item.html',
+                  {'post_form': container_form})

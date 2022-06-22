@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %} Hello {% endblock %}
+{% block content%}
+<div class="container">
+    <div class="row">
+        <h2>Таблица контейнеров</h2>
+        <nav>
+            <a class="btn btn-outline-primary" href="{% url 'grocery:container_create' %}">Создать контейнер</a>
+            <a class="btn btn-outline-primary" href="{% url 'grocery:product_type_add' %}">Создать продукт</a>
+        </nav>
+        <div class="table-responsive col-12">
+        <h3>Таблица контейнеров</h3>
+        <table class="table table-striped table-sm">
+            <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Продукт</th>
+                  <th>Время создания</th>
+                  <th>Время изменения</th>
+                  <th>Статус</th>
+                  <th>Место нахождения</th>
+                  <th>Масса ДО</th>
+                  <th>Масс После</th>
+                  <th>Брутто</th>
+                  <th>Масса бокса</th>
+                  <th>Разница </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in posts %}
+                <tr>
+                  <td><a href="{% url 'grocery:container_edit' i.id %}">{{ i.id }}</a></td>
+                  <td>{{ i.title }}</td>
+                  <td>{{ i.created }}</td>
+                  <td>{{ i.updated }}</td>
+                  <td>{{ i.status }}</td>
+                  <td>{{ i.warehouse }}</td>
+                  <td>{{ i.mass1 }}</td>
+                  <td>{{ i.mass2 }}</td>
+                  <td>{{ i.calc_netto }}</td>
+                  <td>{{ i.box_mass }}</td>
+                  <td>{{ i.calc_mass }}</td>
+                </tr>
+                {% endfor %}
+                {% include "pagination.html" with page=posts %}
+
+            </tbody>
+        </table>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
