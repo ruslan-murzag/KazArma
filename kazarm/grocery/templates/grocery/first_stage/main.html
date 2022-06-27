@@ -3,9 +3,9 @@
 {% block content%}
 <div class="container">
     <div class="row">
-        <h2>Таблицы первой сортировки</h2>
+        <h2>Таблицы приходов</h2>
         <nav>
-            <a class="btn btn-outline-primary" href="{% url 'grocery:product_create' %}">Создать запись</a>
+            <a class="btn btn-outline-primary" href="{% url 'grocery:f_s_create' %}">Создать запись</a>
             <a class="btn btn-outline-primary" href="{% url 'grocery:product_type_add' %}">Создать продукт</a>
         </nav>
         <div class="table-responsive col-8">
@@ -24,7 +24,7 @@
             <tbody>
                 {% for i in f_s %}
                 <tr>
-                  <td><a href="{% url 'grocery:product_edit' i.id %}">{{ i.id }}</a></td>
+                  <td><a href="{% url 'grocery:f_s_edit' i.id %}">{{ i.id }}</a></td>
                   <td>{{ i.title }}</td>
                   <td>{{ i.numbers_auto }}</td>
                   <td>{{ i.created }}</td>
@@ -54,7 +54,7 @@
                 {% for product, mass in product_mass %}
                 <tr>
                   <td>{{ product.id }}</td>
-                  <td>{{ product.title }}</td>
+                  <td><a href="{% url 'grocery:product_edit' product.id %}">{{ product.title }}</a></td>
                   <td>{{ mass }}</td>
                 </tr>
                 {% endfor %}
