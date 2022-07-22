@@ -1,11 +1,26 @@
 from django.db import models
 
 
+class Store(models.Model):
+    title = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = 'Клиенты'
+        verbose_name_plural = 'Клиенты'
+
+
 class Product(models.Model):
     title = models.CharField(max_length=255)
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        verbose_name = 'Продукты'
+        verbose_name_plural = 'Продукты'
 
 
 class First_stage(models.Model):
@@ -23,6 +38,10 @@ class First_stage(models.Model):
 
     def __str__(self):
         return self.numbers_auto
+
+    class Meta:
+        verbose_name = 'Приход'
+        verbose_name_plural = 'Приход'
 
 
 class Warehouse(models.Model):
@@ -50,15 +69,18 @@ class Warehouse(models.Model):
             massa_sales += i.calc_netto1()
 
         return [massa_warehouse, massa_sales]
+    class Meta:
+        verbose_name = 'Склад'
+        verbose_name_plural = 'Склад'
+
 
 class Container(models.Model):
-
-
     STATUS_CHOICES = (
         ('Склад', 'Склад'),
         ('Сортировка', 'Сортировка'),
         ('Продажа', 'Продажа'),
-        ('Отходы', 'Отходы')
+        ('Отходы', 'Отходы'),
+        ('Отгружено', 'Отгружено')
     )
     title = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='container')
     created = models.DateTimeField(auto_now_add=True)
@@ -69,7 +91,11 @@ class Container(models.Model):
     mass2 = models.FloatField(default=0)
     box_mass1 = models.FloatField(default=0)
     box_mass2 = models.FloatField(default=0)
+    stores = models.ForeignKey(Store, on_delete=models.PROTECT, related_name='containers', blank=True, null=True)
 
+    class Meta:
+        verbose_name = 'Контейнер'
+        verbose_name_plural = 'Контейнер'
 
 
     def calc_netto1(self):

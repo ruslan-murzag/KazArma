@@ -1,6 +1,6 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from .models import Product, First_stage, Container, Warehouse
+from .models import Product, First_stage, Container, Warehouse, Store
 from .forms import *
 from django.urls import reverse
 from django.db.models import Avg, Count, Sum, Q
@@ -10,13 +10,13 @@ import datetime
 
 @login_required
 def first_stage_list(request):
-
+    today = datetime.datetime.today()
     products = Product.objects.all()
     f_s = First_stage.objects.all().order_by('-id')
     calc_mass = []
     different_mass = 0
     for i in products:
-        all_obj = First_stage.objects.filter(title=i)
+        all_obj = First_stage.objects.filter(created__day=today.day).filter(title=i)
         if all_obj:
             different_mass = all_obj.aggregate(Sum('first_m'))['first_m__sum'] - all_obj.aggregate(Sum('second_m'))['second_m__sum']
         else:
@@ -173,6 +173,7 @@ def warehouse_container_list(request, warehouse_id):
     warehouse = get_object_or_404(Warehouse, id=warehouse_id)
     title = warehouse.title
     containers = warehouse.container.all().order_by('-id')
+    containers = containers.filter(Q(status='Продажа') | Q(status='Склад'))
     paginator = Paginator(containers, 50)
     page = request.GET.get('page')
     try:
@@ -217,11 +218,14 @@ def calc_day(request):
     today = datetime.datetime.today()
     data_list1 = []
     data_list2 = []
+    data_list3 = []
+
     prods = Product.objects.all()
+    container_list = Container.objects.all()
     for i in range(0, 7):
         data = today - datetime.timedelta(days=i)
         f_s_obj = First_stage.objects.all().filter(created__day=data.day)
-        containers_obj = Container.objects.all().filter(created__day=data.day).filter(Q(status='Склад') | Q(status='Отходы'))
+        containers_obj = container_list.filter(created__day=data.day).filter(Q(status='Склад') | Q(status='Отходы'))
         if containers_obj:
             m1 = containers_obj.aggregate(Sum('mass1'))['mass1__sum'] - containers_obj.aggregate(Sum('box_mass1'))['box_mass1__sum']
         else:
@@ -235,8 +239,8 @@ def calc_day(request):
         among_f_s = len(f_s_obj)
         data_list1.append([data, m1, m2, among_cont, among_f_s])
 
-        containers_sail = Container.objects.all().filter(created__day=data.day).filter(status='Продажа')
-        containers_sort = Container.objects.all().filter(created__day=data.day).filter(status='Сортировка')
+        containers_sail = container_list.filter(created__day=data.day).filter(status='Продажа')
+        containers_sort = container_list.filter(created__day=data.day).filter(status='Сортировка')
         if containers_sort:
             netto2 = containers_sort.aggregate(Sum('mass2'))['mass2__sum'] - containers_sort.aggregate(Sum('box_mass2'))['box_mass2__sum']
             nett2_1 = containers_sort.aggregate(Sum('mass1'))['mass1__sum'] - containers_sort.aggregate(Sum('box_mass1'))['box_mass1__sum']
@@ -246,15 +250,73 @@ def calc_day(request):
             different_1 = 0
         if containers_sail:
             netto1 = containers_sail.aggregate(Sum('mass1'))['mass1__sum'] - containers_sail.aggregate(Sum('box_mass1'))['box_mass1__sum']
-            different_2 =  netto1 - netto2
+            different_2 = netto1 - netto2
         else:
             netto1 = 0
             different_2 = 0
 
-
         data_list2.append([data, netto2, different_1, netto1, different_2])
+
+        containers_shipped = container_list.filter(created__day=data.day).filter(status='Отгружено')
+
+        if containers_shipped:
+            netto_shiped = containers_shipped.aggregate(Sum('mass1'))['mass1__sum'] - containers_shipped.aggregate(Sum('box_mass1'))['box_mass1__sum']
+            len_container_ship = len(containers_shipped)
+        else:
+            netto_shiped = 0
+            len_container_ship = 0
+
+        data_list3.append([data, netto_shiped, len_container_ship])
+
     return render(request,
                   'grocery/time_report/day.html',
                   {'data_list1': data_list1,
                    'data_list2': data_list2,
+                   'data_list3': data_list3
                    })
+
+
+@login_required
+def report(request, year, month, day):
+    container_list = Container.objects.filter(created__year=year, created__month=month, created__day=day).filter(status='Отгружено')
+    product_list = Product.objects.all()
+    store_list = Store.objects.all()
+    data_list = []
+    date = datetime.datetime(year=year, month=month, day=day)
+    for i in product_list:
+        items = container_list.filter(title=i)
+        if items:
+            netto = items.aggregate(Sum('mass1'))['mass1__sum'] - items.aggregate(Sum('box_mass1'))['box_mass1__sum']
+        else:
+            netto = 0
+        data_list.append([i, netto, items])
+
+    date_list2 = []
+    for i in store_list:
+        store_item = container_list.filter(stores=i)
+        if store_item:
+            date_list2.append([i, len(store_item)])
+
+    return render(request,
+                  'grocery/time_report/report.html',
+                  {'data_list': data_list,
+                   'data_list2': date_list2,
+                   'date': date})
+
+@login_required
+def report_store(request, id):
+    store = get_object_or_404(Store, id=id)
+    store_container = store.containers.all()
+
+    return render(request,
+                  'grocery/stores/store_report.html',
+                  {'store_container': store_container,
+                   'store': store,})
+
+@login_required
+def stores(request):
+    stores = Store.objects.all()
+
+    return render(request,
+                  'grocery/stores/stores.html',
+                  {'stores': stores})
