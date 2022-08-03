@@ -37,8 +37,13 @@ header div{
 h2{
     text-align: center;
 }
+#logo {
+    color: #0d6efd !important;
+}
 
 a{
     text-decoration: none;
-
+}
+#logo a{
+    color: #0d6efd !important;
 }

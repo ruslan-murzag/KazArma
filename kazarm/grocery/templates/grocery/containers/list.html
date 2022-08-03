@@ -19,10 +19,10 @@
                   <th>Время изменения</th>
                   <th>Статус</th>
                   <th>Место нахождения</th>
-                  <th>Масса ДО</th>
-                  <th>Масс После</th>
                   <th>Брутто1</th>
+                  <th>Нетто1</th>
                   <th>Брутто2</th>
+                  <th>Нетто2</th>
                   <th>Разница </th>
 
                 </tr>
@@ -31,14 +31,14 @@
                 {% for i in posts %}
                 <tr>
                     <td><a href="{% url 'grocery:container_edit' i.id %}">{{ i.id }}</a></td>
-                    <td>{{ i.title }}</td>
-                    <td>{{ i.created }}</td>
-                    <td>{{ i.updated }}</td>
-                    <td>{{ i.status }}</td>
+                    <td><a href="{% url 'grocery:containers_list_by_title' i.title.id %}">{{ i.title }}</a></td>
+                    <td><a href="{% url 'grocery:containers_list_by_date' year=i.created.year month=i.created.month day=i.created.day %}">{{ i.created }}</a></td>
+                    <td><a href="{% url 'grocery:containers_list_by_date_update' year=i.updated.year month=i.updated.month day=i.updated.day  %}">{{ i.updated }}</a></td>
+                    <td><a href="{% url 'grocery:containers_list_by_status' status=i.status%}">{{ i.status }}</a></td>
                     <td><a href="{% url 'grocery:warehouse_containers_list' i.warehouse.id  %}">{{ i.warehouse }}</a></td>
                     <td>{{ i.mass1 }}</td>
-                    <td>{{ i.mass2 }}</td>
                     <td>{{ i.calc_netto1 }}</td>
+                    <td>{{ i.mass2 }}</td>
                     <td>{{ i.calc_netto2 }}</td>
 
                     {% if i.mass2 == 0 %}

@@ -20,4 +20,24 @@ urlpatterns = [
     path('report/stores/', views.stores, name='stores'),
 
     path('report/<int:year>/<int:month>/<int:day>', views.report, name='report'),
+
+
+    path('report/first_stage_day/<int:year>/<int:month>/<int:day>', views.first_stage_day_report, name='first_day_report'),
+    path('report/second_stage_day/<int:year>/<int:month>/<int:day>', views.second_stage_day_report, name='second_day_report'),
+
+    path('containers/<int:title>', views.containers_list_by_title, name='containers_list_by_title'),
+
+
+    path('containers/list/date/<int:year>/<int:month>/<int:day>', views.containers_list_by_date_create, name='containers_list_by_date'),
+    path('containers/list/date/update/<int:year>/<int:month>/<int:day>', views.containers_list_by_date_update,
+         name='containers_list_by_date_update'),
+
+    path('containers/list/status/<str:status>', views.containers_list_by_status, name='containers_list_by_status'),
+
+    path('arrivals/date/create/<int:year>/<int:month>/<int:day>', views.arrival_by_date_create, name='arrivals_date_create'),
+    path('arrivals/date/update/<int:year>/<int:month>/<int:day>', views.arrival_by_date_update,
+         name='arrivals_date_update'),
+    path('arrivals/<str:auto>', views.arrival_by_auto, name='arrivals_by_auto'),
+    path('arrivals/title/<str:title>', views.arrival_by_title, name='arrivals_by_title'),
+
 ]

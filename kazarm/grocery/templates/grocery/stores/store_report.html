@@ -28,6 +28,7 @@
                                 <td>{{ i.calc_netto1 }}</td>
                             </tr>
                         {% endfor %}
+                        {% include "pagination.html" with page=store_container %}
 
                     </tbody>
                 </table>

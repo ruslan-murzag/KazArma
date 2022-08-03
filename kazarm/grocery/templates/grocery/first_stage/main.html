@@ -25,10 +25,10 @@
                 {% for i in f_s %}
                 <tr>
                   <td><a href="{% url 'grocery:f_s_edit' i.id %}">{{ i.id }}</a></td>
-                  <td>{{ i.title }}</td>
-                  <td>{{ i.numbers_auto }}</td>
-                  <td>{{ i.created }}</td>
-                  <td>{{ i.updated }}</td>
+                  <td><a href="{% url 'grocery:arrivals_by_title' title=i.title.id %}">{{ i.title }}</a></td>
+                  <td><a href="{% url 'grocery:arrivals_by_auto' auto=i.numbers_auto %}">{{ i.numbers_auto }}</a></td>
+                  <td><a href="{% url 'grocery:arrivals_date_create' year=i.created.year month=i.created.month day=i.created.day %}">{{ i.created }}</a></td>
+                  <td><a href="{% url 'grocery:arrivals_date_update' year=i.updated.year month=i.updated.month day=i.updated.day %}">{{ i.updated }}</a></td>
                   <td>{{ i.calc }}</td>
                 </tr>
                 {% endfor %}

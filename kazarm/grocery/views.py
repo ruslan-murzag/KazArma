@@ -8,6 +8,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 import datetime
 
+
 @login_required
 def first_stage_list(request):
     today = datetime.datetime.today()
@@ -18,7 +19,8 @@ def first_stage_list(request):
     for i in products:
         all_obj = First_stage.objects.filter(created__day=today.day).filter(title=i)
         if all_obj:
-            different_mass = all_obj.aggregate(Sum('first_m'))['first_m__sum'] - all_obj.aggregate(Sum('second_m'))['second_m__sum']
+            different_mass = all_obj.aggregate(Sum('first_m'))['first_m__sum'] - all_obj.aggregate(Sum('second_m'))[
+                'second_m__sum']
         else:
             different_mass = 0
         calc_mass.append(different_mass)
@@ -33,7 +35,6 @@ def first_stage_list(request):
     except EmptyPage:
         # If page is out of range deliver last page of results
         posts = paginator.page(paginator.num_pages)
-
 
     product_mass = dict(zip(products, calc_mass))
     return render(request,
@@ -76,6 +77,7 @@ def first_stage_edit(request, f_s_id):
     return render(request,
                   'grocery/first_stage/edit_item.html',
                   {'post_form': post_form})
+
 
 @login_required
 def product_create(request):
@@ -165,7 +167,7 @@ def product_edit(request, product_id):
 
     return render(request,
                   'grocery/first_stage/edit_product.html',
-                  {'post_form':product_form})
+                  {'post_form': product_form})
 
 
 @login_required
@@ -224,10 +226,11 @@ def calc_day(request):
     container_list = Container.objects.all()
     for i in range(0, 7):
         data = today - datetime.timedelta(days=i)
-        f_s_obj = First_stage.objects.all().filter(created__day=data.day)
-        containers_obj = container_list.filter(created__day=data.day).filter(Q(status='Склад') | Q(status='Отходы'))
+        f_s_obj = First_stage.objects.all().filter(created__year=data.year, created__month=data.month, created__day=data.day)
+        containers_obj = container_list.filter(created__year=data.year, created__month=data.month, created__day=data.day).filter(Q(status='Склад') | Q(status='Отходы'))
         if containers_obj:
-            m1 = containers_obj.aggregate(Sum('mass1'))['mass1__sum'] - containers_obj.aggregate(Sum('box_mass1'))['box_mass1__sum']
+            m1 = containers_obj.aggregate(Sum('mass1'))['mass1__sum'] - containers_obj.aggregate(Sum('box_mass1'))[
+                'box_mass1__sum']
         else:
             m1 = 0
         if f_s_obj:
@@ -239,17 +242,20 @@ def calc_day(request):
         among_f_s = len(f_s_obj)
         data_list1.append([data, m1, m2, among_cont, among_f_s])
 
-        containers_sail = container_list.filter(created__day=data.day).filter(status='Продажа')
-        containers_sort = container_list.filter(created__day=data.day).filter(status='Сортировка')
+        containers_sail = container_list.filter(updated__year=data.year, updated__month=data.month, updated__day=data.day).filter(status='Продажа')
+        containers_sort = container_list.filter(updated__year=data.year, updated__month=data.month, updated__day=data.day).filter(status='Сортировка')
         if containers_sort:
-            netto2 = containers_sort.aggregate(Sum('mass2'))['mass2__sum'] - containers_sort.aggregate(Sum('box_mass2'))['box_mass2__sum']
-            nett2_1 = containers_sort.aggregate(Sum('mass1'))['mass1__sum'] - containers_sort.aggregate(Sum('box_mass1'))['box_mass1__sum']
+            netto2 = containers_sort.aggregate(Sum('mass2'))['mass2__sum'] - \
+                     containers_sort.aggregate(Sum('box_mass2'))['box_mass2__sum']
+            nett2_1 = containers_sort.aggregate(Sum('mass1'))['mass1__sum'] - \
+                      containers_sort.aggregate(Sum('box_mass1'))['box_mass1__sum']
             different_1 = netto2 - nett2_1
         else:
             netto2 = 0
             different_1 = 0
         if containers_sail:
-            netto1 = containers_sail.aggregate(Sum('mass1'))['mass1__sum'] - containers_sail.aggregate(Sum('box_mass1'))['box_mass1__sum']
+            netto1 = containers_sail.aggregate(Sum('mass1'))['mass1__sum'] - \
+                     containers_sail.aggregate(Sum('box_mass1'))['box_mass1__sum']
             different_2 = netto1 - netto2
         else:
             netto1 = 0
@@ -260,7 +266,8 @@ def calc_day(request):
         containers_shipped = container_list.filter(created__day=data.day).filter(status='Отгружено')
 
         if containers_shipped:
-            netto_shiped = containers_shipped.aggregate(Sum('mass1'))['mass1__sum'] - containers_shipped.aggregate(Sum('box_mass1'))['box_mass1__sum']
+            netto_shiped = containers_shipped.aggregate(Sum('mass1'))['mass1__sum'] - \
+                           containers_shipped.aggregate(Sum('box_mass1'))['box_mass1__sum']
             len_container_ship = len(containers_shipped)
         else:
             netto_shiped = 0
@@ -278,7 +285,8 @@ def calc_day(request):
 
 @login_required
 def report(request, year, month, day):
-    container_list = Container.objects.filter(created__year=year, created__month=month, created__day=day).filter(status='Отгружено')
+    container_list = Container.objects.filter(created__year=year, created__month=month, created__day=day).filter(
+        status='Отгружено')
     product_list = Product.objects.all()
     store_list = Store.objects.all()
     data_list = []
@@ -303,15 +311,28 @@ def report(request, year, month, day):
                    'data_list2': date_list2,
                    'date': date})
 
+
 @login_required
 def report_store(request, id):
     store = get_object_or_404(Store, id=id)
-    store_container = store.containers.all()
+    store_container = store.containers.all().order_by('-id')
 
+    paginator = Paginator(store_container, 20)
+    page = request.GET.get('page')
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer deliver the first page
+        posts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range deliver last page of results
+        posts = paginator.page(paginator.num_pages)
     return render(request,
                   'grocery/stores/store_report.html',
-                  {'store_container': store_container,
-                   'store': store,})
+                  {'store_container': posts,
+                   'page': page,
+                   'store': store, })
+
 
 @login_required
 def stores(request):
@@ -320,3 +341,202 @@ def stores(request):
     return render(request,
                   'grocery/stores/stores.html',
                   {'stores': stores})
+
+
+@login_required
+def first_stage_day_report(request, year, month, day):
+    container_list = Container.objects.filter(created__year=year, created__month=month, created__day=day).filter(Q(status='Отходы') | Q(status='Склад')).order_by('-id')
+    arrivals = First_stage.objects.filter(created__year=year, created__month=month, created__day=day).order_by('-id')
+    date = datetime.datetime(year=year, month=month, day=day)
+
+    products_list = Product.objects.all()
+    product_calc = []
+    arrivals_calc = []
+    for i in products_list:
+        items = container_list.filter(title=i)
+        if items:
+            netto = items.aggregate(Sum('mass1'))['mass1__sum'] - items.aggregate(Sum('box_mass1'))['box_mass1__sum']
+        else:
+            netto = 0
+        product_calc.append([i, netto])
+
+    for i in products_list:
+        items = arrivals.filter(title=i)
+        if items:
+            netto = items.aggregate(Sum('first_m'))['first_m__sum'] - items.aggregate(Sum('second_m'))[
+                'second_m__sum']
+        else:
+            netto = 0
+        arrivals_calc.append([i, netto])
+
+    return render(request, 'grocery/time_report/first_stage_day_report.html',
+                  {'container_list': container_list,
+                   'arrivals': arrivals,
+                   'date': date,
+                   'product_calc': product_calc,
+                   'arrivals_calc': arrivals_calc})
+
+
+@login_required
+def second_stage_day_report(request, year, month, day):
+    container_list = Container.objects.filter(updated__year=year, updated__month=month, updated__day=day).order_by('-id')
+    container_list_sort = container_list.filter(status='Сортировка')
+    container_list_sell = container_list.filter(status='Продажа')
+    date = datetime.datetime(year=year, month=month, day=day)
+    product_list = Product.objects.all()
+    product_sort_calc = []
+    product_sell_calc = []
+    for i in product_list:
+        items1 = container_list_sort.filter(title=i)
+        if items1:
+            netto1 = items1.aggregate(Sum('mass1'))['mass1__sum'] - items1.aggregate(Sum('box_mass1'))['box_mass1__sum']
+            netto2 = items1.aggregate(Sum('mass2'))['mass2__sum'] - items1.aggregate(Sum('box_mass2'))['box_mass2__sum']
+            diff1 = netto2 - netto1
+        else:
+            netto1 = 0
+            netto2 = 0
+            diff1 = 0
+        product_sort_calc.append([i, netto1, netto2, diff1])
+
+        items2 = container_list_sell.filter(title=i)
+        if items2:
+            netto_sell = items2.aggregate(Sum('mass1'))['mass1__sum'] - items2.aggregate(Sum('box_mass1'))['box_mass1__sum']
+            diff2 = netto_sell - netto2
+        else:
+            netto_sell = 0
+            diff2 = 0
+
+        product_sell_calc.append([i, netto_sell, diff2])
+
+
+
+
+    return render(request,
+                  'grocery/time_report/second_stage_day_report.html',
+
+                  {'container_list_sort': container_list_sort,
+                   'container_list_sell': container_list_sell,
+                   'date': date,
+                   'product_sort_calc': product_sort_calc,
+                   'product_sell_calc': product_sell_calc})
+
+
+@login_required
+def containers_list_by_title(request, title):
+    container_list = Container.objects.filter(title=title).order_by('-id')
+    paginator = Paginator(container_list, 20)
+    page = request.GET.get('page')
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer deliver the first page
+        posts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range deliver last page of results
+        posts = paginator.page(paginator.num_pages)
+
+    return render(request,
+                  'grocery/containers/list_by_title.html',
+                  {'container_list': posts,
+                   'page': page})
+
+
+@login_required
+def containers_list_by_date_create(request, year, month, day):
+    container_list = Container.objects.filter(created__year=year, created__month=month, created__day=day).order_by('-id')
+    date = datetime.datetime(year=year, month=month, day=day)
+
+    return render(request,
+                  'grocery/containers/list_by_date.html',
+                  {'container_list': container_list,
+                   'date': date})
+
+@login_required
+def containers_list_by_date_update(request, year, month, day):
+    container_list = Container.objects.filter(updated__year=year, updated__month=month, updated__day=day).order_by(
+        '-id')
+    date = datetime.datetime(year=year, month=month, day=day)
+    return render(request,
+                  'grocery/containers/list_by_date_update.html',
+                  {'container_list': container_list,
+                   'date': date})
+@login_required
+def containers_list_by_status(request, status):
+    container_list = Container.objects.filter(status=status).order_by('-id')
+
+    paginator = Paginator(container_list, 20)
+    page = request.GET.get('page')
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer deliver the first page
+        posts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range deliver last page of results
+        posts = paginator.page(paginator.num_pages)
+    return render(request,
+                  'grocery/containers/list_by_status.html',
+                  {'container_list': posts,
+                   'page': page,
+                   'status': status})
+
+
+@login_required
+def arrival_by_date_create(request, year, month, day):
+    arrivals_list = First_stage.objects.filter(created__year=year, created__month=month, created__day=day).order_by('-id')
+    date = datetime.datetime(year=year, month=month, day=day)
+    return render(request,
+                  'grocery/first_stage/by_date_create.html',
+                  {'arrivals_list': arrivals_list,
+                   'date': date})
+
+
+@login_required
+def arrival_by_date_update(request, year, month, day):
+    arrivals_list = First_stage.objects.filter(updated__year=year, updated__month=month, updated__day=day).order_by('-id')
+    date = datetime.datetime(year=year, month=month, day=day)
+    return render(request,
+                  'grocery/first_stage/by_date_create.html',
+                  {'arrivals_list': arrivals_list,
+                   'date': date})
+
+
+@login_required
+def arrival_by_auto(request, auto):
+    arrivals_list = First_stage.objects.filter(numbers_auto=auto).order_by('-id')
+
+    paginator = Paginator(arrivals_list, 20)
+    page = request.GET.get('page')
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer deliver the first page
+        posts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range deliver last page of results
+        posts = paginator.page(paginator.num_pages)
+    return render(request, 'grocery/first_stage/by_auto.html',
+                  {'arrivals_list': posts,
+                   'page': page,
+                   'auto': auto})
+
+
+@login_required
+def arrival_by_title(request, title):
+    arrivals_list = First_stage.objects.filter(title=title).order_by('-id')
+    paginator = Paginator(arrivals_list, 20)
+    page = request.GET.get('page')
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer deliver the first page
+        posts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range deliver last page of results
+        posts = paginator.page(paginator.num_pages)
+    print(arrivals_list)
+    print('Hello')
+    return render(request, 'grocery/first_stage/by_title.html',
+                  {'arrivals_list': posts,
+                   'page': page,
+                   'title': title})

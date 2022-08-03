@@ -6,7 +6,6 @@ admin.site.register(First_stage)
 admin.site.register(Warehouse)
 admin.site.register(Store)
 
-
 @admin.register(Product)
 class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'title',)
@@ -20,4 +19,4 @@ class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'created', 'updated', 'warehouse', 'status')
     list_filter = ('status', 'title', 'created', 'updated', 'warehouse')
     search_fields = ['id', 'status', 'title__title']
-    # ordering = ('status', 'publish')
+    ordering = ('status', 'title')

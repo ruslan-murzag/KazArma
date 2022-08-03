@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %} Hello {% endblock %}
+{% block content%}
+<div class="container">
+    <div class="row">
+        <h2>Таблицы приходов</h2>
+        <nav>
+            <a class="btn btn-outline-primary" href="{% url 'grocery:f_s_create' %}">Создать запись</a>
+            <a class="btn btn-outline-primary" href="{% url 'grocery:product_type_add' %}">Создать продукт</a>
+        </nav>
+        <div class="table-responsive col-8">
+        <h3>Таблица всех всех приходов {{ title }}</h3>
+        <table class="table table-striped table-sm">
+            <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Продукт</th>
+                  <th>Номер машины</th>
+                  <th>Время прихода</th>
+                  <th>Время ухода</th>
+                  <th>Масса груза(кг)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in arrivals_list %}
+                <tr>
+                  <td><a href="{% url 'grocery:f_s_edit' i.id %}">{{ i.id }}</a></td>
+                  <td>{{ i.title }}</td>
+                  <td>{{ i.numbers_auto }}</td>
+                  <td>{{ i.created }}</td>
+                  <td>{{ i.updated }}</td>
+                  <td>{{ i.calc }}</td>
+                </tr>
+                {% endfor %}
+                {% include "pagination.html" with page=arrivals_list %}
+
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
