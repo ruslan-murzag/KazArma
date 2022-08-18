@@ -13,7 +13,9 @@
 {#                    <th>#</th>#}
                     <th>Дата</th>
                     <th>Приход</th>
-                    <th>Масса брутто</th>
+                    <th>Вес продукции</th>
+                    <th>Масса земля/мусор</th>
+                    <th>Разница</th>
                     <th>Количество приходов</th>
                     <th>Количество контейнеров</th>
                 </tr>
@@ -22,11 +24,13 @@
 
             {% for i in data_list1 %}
                 <tr>
-                    <td><a href="{% url 'grocery:first_day_report' year=i.0.year month=i.0.month day=i.0.day %}">{{ i.0|date:"d.m.y" }}</a></td>
+                    <td><a href="{% url 'report:first_day_report' year=i.0.year month=i.0.month day=i.0.day %}">{{ i.0|date:"d.m.y" }}</a></td>
                     <td>{{ i.2 }}</td>
                     <td>{{ i.1 }}</td>
-                    <td>{{ i.4 }}</td>
                     <td>{{ i.3 }}</td>
+                    <td>{{ i.4 }}</td>
+                    <td>{{ i.6 }}</td>
+                    <td>{{ i.5 }}</td>
 
                 </tr>
             {% endfor %}
@@ -50,7 +54,7 @@
 
             {% for i in data_list2 %}
                 <tr>
-                    <td><a href="{% url 'grocery:second_day_report' year=i.0.year month=i.0.month day=i.0.day %}">{{ i.0|date:"d.m.y" }}</a></td>
+                    <td><a href="{% url 'report:second_day_report' year=i.0.year month=i.0.month day=i.0.day %}">{{ i.0|date:"d.m.y" }}</a></td>
                     <td>{{ i.1}}</td>
                     <td>{{ i.2 }}</td>
                     <td>{{ i.3 }}</td>
@@ -75,7 +79,7 @@
 
             {% for i in data_list3 %}
                 <tr>
-                    <td><a href="{% url 'grocery:report' year=i.0.year month=i.0.month day=i.0.day %}">{{ i.0|date:"d.m.y" }}</a></td>
+                    <td><a href="{% url 'report:report' year=i.0.year month=i.0.month day=i.0.day %}">{{ i.0|date:"d.m.y" }}</a></td>
                     <td>{{ i.1}}</td>
                     <td>{{ i.2 }}</td>
                 </tr>

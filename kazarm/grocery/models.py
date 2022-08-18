@@ -86,6 +86,7 @@ class Container(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='')
+    status1 = models.CharField(max_length=10, choices=STATUS_CHOICES, default='', blank=True, null=True)
     warehouse = models.ForeignKey(Warehouse, on_delete=models.PROTECT, related_name='container')
     mass1 = models.FloatField(default=0)
     mass2 = models.FloatField(default=0)
@@ -96,7 +97,6 @@ class Container(models.Model):
     class Meta:
         verbose_name = 'Контейнер'
         verbose_name_plural = 'Контейнер'
-
 
     def calc_netto1(self):
         return round(self.mass1 - self.box_mass1, 3)
@@ -110,3 +110,5 @@ class Container(models.Model):
 
     def __str__(self):
         return str(self.id)
+
+

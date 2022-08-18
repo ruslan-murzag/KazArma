@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %} Hello {% endblock %}
+{% block link %}
+{% endblock %}
+{% block content%}
+
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="card card-body">
+                    <form method="get">
+                        {{ myFilter.form.as_p }}
+                        <input type="submit" class="btn btn-primary"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Продукт</th>
+                            <th>Время создания</th>
+                            <th>Время изменения</th>
+                            <th>Статус</th>
+                            <th>Место нахождения</th>
+                            <th>Брутто1</th>
+                            <th>Нетто1</th>
+                            <th>Брутто2</th>
+                            <th>Нетто2</th>
+                            <th>Разница </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in posts %}
+                            <tr>
+                                <td><a href="{% url 'grocery:container_edit' i.id %}">{{ i.id }}</a></td>
+                                <td><a href="{% url 'grocery:containers_list_by_title' i.title.id %}">{{ i.title }}</a></td>
+                                <td><a href="{% url 'grocery:containers_list_by_date' year=i.created.year month=i.created.month day=i.created.day %}">{{ i.created }}</a></td>
+                                <td><a href="{% url 'grocery:containers_list_by_date_update' year=i.updated.year month=i.updated.month day=i.updated.day  %}">{{ i.updated }}</a></td>
+                                {% if i.status1 %}
+                                    <td><a href="{% url 'grocery:containers_list_by_status' status=i.status%}">{{ i.status1 }}</a></td>
+                                {% else %}
+                                    <td><a href="{% url 'grocery:containers_list_by_status' status=i.status%}">{{ i.status }}</a></td>
+                                {% endif %}
+                                <td><a href="{% url 'grocery:warehouse_containers_list' i.warehouse.id  %}">{{ i.warehouse }}</a></td>
+                                <td>{{ i.mass1 }}</td>
+                                <td>{{ i.calc_netto1 }}</td>
+                                <td>{{ i.mass2 }}</td>
+                                <td>{{ i.calc_netto2 }}</td>
+
+                                {% if i.mass2 == 0 %}
+                                    <td>0</td>
+                                {% else %}
+                                    <td>{{ i.calc_mass }}</td>
+                                {% endif %}
+                                </tr>
+                {% endfor %}
+                {% include "pagination.html" with page=posts %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        let start_date = document.getElementById('id_start_date')
+        let end_date = document.getElementById('id_end_date')
+
+        let start_date1 = document.getElementById('id_start_date1')
+        let end_date1 = document.getElementById('id_end_date1')
+        start_date.type = 'date'
+        end_date.type = 'date'
+        start_date1.type = 'date'
+        end_date1.type = 'date'
+    </script>
+{% endblock %}

@@ -3,24 +3,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    {% block link %}
+    {% endblock %}
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
     <link rel="stylesheet" href="{% static '/css/main.css' %} ">
+
     <title>{% block title %}{% endblock %}</title>
 
 </head>
 <body>
 <header>
     <div class="container">
-        <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-12 mb-12 bg-white border-bottom box-shadow">
+        <div class="d-flex flex-column flex-md-row align-items-center p-1 pt-3 px-md-12 mb-12 bg-white border-bottom box-shadow">
       <h4 class="my-0 mr-md-auto font-weight-normal" id="logo"><a href="{% url 'grocery:product-list' %}">BayStone</a></h4>
-        <a class='p-2 text-dark' href="{% url 'admin:index' %}">Админ</a>
+{#            <a class='p-2 text-dark' href="{% url 'report:filter_page' %}">Фильтр</a>#}
+
+            <a class='p-2 text-dark' href="{% url 'admin:index' %}">Админ</a>
       <nav class="my-2 my-md-0 mr-md-3">
           <a class="p-2 text-dark" href="{% url 'grocery:product-list' %}">Приход</a>
           <a class="p-2 text-dark" href="{% url 'grocery:containers_list' %}">Контейнеры</a>
           <a class="p-2 text-dark" href="{% url 'grocery:warehouse_list' %}">Склады</a>
-          <a class="p-2 text-dark" href="{% url 'grocery:report-day' %}">Отчет</a>
+          <a class="p-2 text-dark" href="{% url 'report:report-day' %}">Отчет</a>
 
-          <a class='p-2 text-dark' href="{% url 'grocery:stores' %}">Клиенты</a>
+          <a class='p-2 text-dark' href="{% url 'report:stores' %}">Клиенты</a>
           {% if request.user.is_authenticated %}
 {#                Hello {{ request.user.first_name }},#}
                 <a class="btn btn-outline-primary" href="{% url "logout" %}">Выйти</a>
@@ -37,5 +44,8 @@
         {% endblock %}
     </div>
     </div>
+{% block script %}
+
+{% endblock %}
 </body>
 </html>

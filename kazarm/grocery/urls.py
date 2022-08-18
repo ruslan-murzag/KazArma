@@ -14,16 +14,6 @@ urlpatterns = [
     path('edit-product/<int:product_id>', views.product_edit, name='product_edit'),
     path('warehouse/<int:warehouse_id>', views.warehouse_container_list, name='warehouse_containers_list'),
     path('warehouse/list', views.warehouse_list, name='warehouse_list'),
-    path('report/day', views.calc_day, name='report-day'),
-
-    path('report/store/<int:id>', views.report_store, name='report_store'),
-    path('report/stores/', views.stores, name='stores'),
-
-    path('report/<int:year>/<int:month>/<int:day>', views.report, name='report'),
-
-
-    path('report/first_stage_day/<int:year>/<int:month>/<int:day>', views.first_stage_day_report, name='first_day_report'),
-    path('report/second_stage_day/<int:year>/<int:month>/<int:day>', views.second_stage_day_report, name='second_day_report'),
 
     path('containers/<int:title>', views.containers_list_by_title, name='containers_list_by_title'),
 
