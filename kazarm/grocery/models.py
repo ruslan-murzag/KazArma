@@ -78,15 +78,14 @@ class Container(models.Model):
     STATUS_CHOICES = (
         ('Склад', 'Склад'),
         ('Сортировка', 'Сортировка'),
-        ('Продажа', 'Продажа'),
         ('Отходы', 'Отходы'),
-        ('Отгружено', 'Отгружено')
+        (' ', ' ')
     )
     title = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='container')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='')
-    status1 = models.CharField(max_length=10, choices=STATUS_CHOICES, default='', blank=True, null=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=' ')
+    status1 = models.CharField(max_length=10, choices=STATUS_CHOICES, default=' ', blank=True, null=True)
     warehouse = models.ForeignKey(Warehouse, on_delete=models.PROTECT, related_name='container')
     mass1 = models.FloatField(default=0)
     mass2 = models.FloatField(default=0)
@@ -112,3 +111,31 @@ class Container(models.Model):
         return str(self.id)
 
 
+class Tray(models.Model):
+    PACKING_CHOICES = (
+        ('Мешок', 'Мешок'),
+        ('Сетка', 'Сетка'),
+    )
+    STATUS_CHOICES = (
+        ('Склад', 'Склад'),
+        ('Продажа', 'Продажа'),
+        (' ', ' ')
+    )
+    title = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='tray')
+    mass1 = models.FloatField(default=0)
+    mass2 = models.FloatField(default=0)
+    packing = models.CharField(max_length=10, choices=PACKING_CHOICES, default='')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=' ')
+    status1 = models.CharField(max_length=10, choices=STATUS_CHOICES, default=' ', blank=True, null=True)
+    number_pr = models.IntegerField(default=0)
+    stores = models.ForeignKey(Store, on_delete=models.PROTECT, related_name='tray', blank=True, null=True)
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.PROTECT, related_name='tray')
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def calc_netto(self):
+        return self.mass1 - self.mass2
+
+    class Meta:
+        verbose_name = 'Поддоны'
+        verbose_name_plural = 'Поддоны'

@@ -29,7 +29,11 @@
                             <td>{{ i.title }}</td>
                             <td>{{ i.created }}</td>
                             <td>{{ i.updated }}</td>
-                            <td>{{ i.status }}</td>
+                            {% if i.status1 != ' '%}
+                                <td><a href="{% url 'grocery:containers_list_by_status' num=2 status=i.status1%}">{{ i.status1 }}</a></td>
+                            {% else %}
+                                <td><a href="{% url 'grocery:containers_list_by_status' num=1 status=i.status%}">{{ i.status }}</a></td>
+                            {% endif %}
                             <td><a href="{% url 'grocery:warehouse_containers_list' i.warehouse.id  %}">{{ i.warehouse }}</a></td>
                             <td>{{ i.mass1 }}</td>
                             <td>{{ i.calc_netto1 }}</td>

@@ -17,32 +17,31 @@
 <header>
     <div class="container">
         <div class="d-flex flex-column flex-md-row align-items-center p-1 pt-3 px-md-12 mb-12 bg-white border-bottom box-shadow">
-      <h4 class="my-0 mr-md-auto font-weight-normal" id="logo"><a href="{% url 'grocery:product-list' %}">BayStone</a></h4>
+            <h4 class="my-0 mr-md-auto font-weight-normal" id="logo"><a href="{% url 'grocery:product-list' %}">BayStone</a></h4>
 {#            <a class='p-2 text-dark' href="{% url 'report:filter_page' %}">Фильтр</a>#}
 
             <a class='p-2 text-dark' href="{% url 'admin:index' %}">Админ</a>
-      <nav class="my-2 my-md-0 mr-md-3">
-          <a class="p-2 text-dark" href="{% url 'grocery:product-list' %}">Приход</a>
-          <a class="p-2 text-dark" href="{% url 'grocery:containers_list' %}">Контейнеры</a>
-          <a class="p-2 text-dark" href="{% url 'grocery:warehouse_list' %}">Склады</a>
-          <a class="p-2 text-dark" href="{% url 'report:report-day' %}">Отчет</a>
-
-          <a class='p-2 text-dark' href="{% url 'report:stores' %}">Клиенты</a>
-          {% if request.user.is_authenticated %}
+            <nav class="my-2 my-md-0 mr-md-3">
+                <a class="p-2 text-dark" href="{% url 'grocery:product-list' %}">Приход</a>
+                <a class="p-2 text-dark" href="{% url 'grocery:containers_list' %}">Контейнеры</a>
+{#                <a class="p-2 text-dark" href="{% url 'grocery:trays_list' %}">Поддоны</a>#}
+                <a class="p-2 text-dark" href="{% url 'grocery:warehouse_list' %}">Склады</a>
+                <a class="p-2 text-dark" href="{% url 'report:report-day' %}">Отчет</a>
+                <a class='p-2 text-dark' href="{% url 'report:stores' %}">Клиенты</a>
+                {% if request.user.is_authenticated %}
 {#                Hello {{ request.user.first_name }},#}
-                <a class="btn btn-outline-primary" href="{% url "logout" %}">Выйти</a>
-          {% else %}
-              <a class="btn btn-outline-primary" href="{% url "login" %}">Войти</a>
-            {% endif %}
-      </nav>
-
+                    <a class="btn btn-outline-primary" href="{% url "logout" %}">Выйти</a>
+                {% else %}
+                    <a class="btn btn-outline-primary" href="{% url "login" %}">Войти</a>
+                {% endif %}
+            </nav>
+        </div>
     </div>
 </header>
 
     <div id="content">
         {% block content %}
         {% endblock %}
-    </div>
     </div>
 {% block script %}
 

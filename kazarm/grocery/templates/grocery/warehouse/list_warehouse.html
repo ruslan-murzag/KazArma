@@ -16,9 +16,7 @@
                     <th>#</th>
                     <th>Продукт</th>
                     <th>Контейнеры(склад)</th>
-                    <th>Контейнеры(продажа)</th>
                     <th>Склад масса</th>
-                    <th>Продажа масса</th>
                 </tr>
             </thead>
             <tbody>
@@ -28,9 +26,7 @@
                     <td>{{ i.id }}</td>
                     <td><a href="{% url 'grocery:warehouse_containers_list' i.id %}">{{ i.title }}</a></td>
                     <td>{{ i.warehouse_len }}</td>
-                    <td>{{ i.warehouse_sell_len }}</td>
                     <td>{{ i.container_mass.0 }}</td>
-                    <td>{{ i.container_mass.1 }}</td>
                 {% endif %}
                 </tr>
                 {% endfor %}

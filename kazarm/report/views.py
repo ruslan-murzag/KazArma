@@ -73,7 +73,6 @@ def calc_day(request):
     today = datetime.datetime.today()
     data_list1 = []
     data_list2 = []
-    data_list3 = []
 
     prods = Product.objects.all()
     container_list = Container.objects.all()
@@ -101,8 +100,9 @@ def calc_day(request):
         among_f_s = len(f_s_obj)
         data_list1.append([data, m1, m2, m_trash, diff_m1_m2_trash, among_cont, among_f_s])
 
-        containers_sail = container_list.filter(updated__year=data.year, updated__month=data.month, updated__day=data.day).filter(status='Продажа')
+        trays = Tray.objects.all()
         containers_sort = container_list.filter(updated__year=data.year, updated__month=data.month, updated__day=data.day).filter(status1='Сортировка')
+        trays = trays.filter(created__year=data.year, created__month=data.month, created__day=data.day).filter(status='Склад')
         if containers_sort:
             netto2 = containers_sort.aggregate(Sum('mass2'))['mass2__sum'] - \
                      containers_sort.aggregate(Sum('box_mass2'))['box_mass2__sum']
@@ -112,33 +112,16 @@ def calc_day(request):
         else:
             netto2 = 0
             different_1 = 0
-        if containers_sail:
-            netto1 = containers_sail.aggregate(Sum('mass1'))['mass1__sum'] - \
-                     containers_sail.aggregate(Sum('box_mass1'))['box_mass1__sum']
-            different_2 = netto1 - netto2
+        if trays:
+            trays_netto = trays.aggregate(Sum('mass1'))['mass1__sum'] - trays.aggregate(Sum('mass2'))['mass2__sum']
         else:
-            netto1 = 0
-            different_2 = 0
-
-        data_list2.append([data, netto2, different_1, netto1, different_2])
-
-        containers_shipped = container_list.filter(created__day=data.day).filter(status='Отгружено')
-
-        if containers_shipped:
-            netto_shiped = containers_shipped.aggregate(Sum('mass1'))['mass1__sum'] - \
-                           containers_shipped.aggregate(Sum('box_mass1'))['box_mass1__sum']
-            len_container_ship = len(containers_shipped)
-        else:
-            netto_shiped = 0
-            len_container_ship = 0
-
-        data_list3.append([data, netto_shiped, len_container_ship])
+            trays_netto = 0
+        data_list2.append([data, netto2, different_1, trays_netto, trays_netto - netto2])
 
     return render(request,
                   'grocery/time_report/day.html',
                   {'data_list1': data_list1,
                    'data_list2': data_list2,
-                   'data_list3': data_list3
                    })
 
 
@@ -179,12 +162,13 @@ def first_stage_day_report(request, year, month, day):
 @login_required
 def second_stage_day_report(request, year, month, day):
     container_list = Container.objects.filter(updated__year=year, updated__month=month, updated__day=day).order_by('-id')
-    container_list_sort = container_list.filter(status='Сортировка')
-    container_list_sell = container_list.filter(status='Продажа')
+    container_list_sort = container_list.filter(status1='Сортировка')
     date = datetime.datetime(year=year, month=month, day=day)
     product_list = Product.objects.all()
     product_sort_calc = []
-    product_sell_calc = []
+
+    tray_list = Tray.objects.filter(created__year=year, created__month=month, created__day=day).filter(status='Склад')
+
     for i in product_list:
         items1 = container_list_sort.filter(title=i)
         if items1:
@@ -197,33 +181,21 @@ def second_stage_day_report(request, year, month, day):
             diff1 = 0
         product_sort_calc.append([i, netto1, netto2, diff1])
 
-        items2 = container_list_sell.filter(title=i)
-        if items2:
-            netto_sell = items2.aggregate(Sum('mass1'))['mass1__sum'] - items2.aggregate(Sum('box_mass1'))['box_mass1__sum']
-            diff2 = netto_sell - netto2
-        else:
-            netto_sell = 0
-            diff2 = 0
-
-        product_sell_calc.append([i, netto_sell, diff2])
-
-
-
-
     return render(request,
                   'grocery/time_report/second_stage_day_report.html',
 
                   {'container_list_sort': container_list_sort,
-                   'container_list_sell': container_list_sell,
                    'date': date,
                    'product_sort_calc': product_sort_calc,
-                   'product_sell_calc': product_sell_calc})
+                   'tray_list': tray_list})
 
 
 @login_required
 def filter_page(request):
     container_list = Container.objects.all().order_by('-id')
     myFilter = ContainerFilter(request.GET, queryset=container_list)
+
+    table = list_container(myFilter.qs)
 
     paginator = Paginator(myFilter.qs, 10)
     page = request.GET.get('page')
@@ -236,4 +208,19 @@ def filter_page(request):
         # If page is out of range deliver last page of results
         posts = paginator.page(paginator.num_pages)
 
-    return render(request, 'filter/filter_page.html', {'page': page, 'myFilter': myFilter, 'posts': posts})
+    return render(request, 'filter/filter_container_page.html', {'page': page, 'myFilter': myFilter, 'posts': posts, 'table': table})
+
+
+def list_container(models):
+    table_data = []
+    products = Product.objects.all()
+    for i in products:
+        containers = models.filter(title=i)
+        if containers:
+            m1 = containers.aggregate(Sum('mass1'))['mass1__sum'] - containers.aggregate(Sum('box_mass1'))['box_mass1__sum']
+            m2 = containers.aggregate(Sum('mass2'))['mass2__sum'] - containers.aggregate(Sum('box_mass2'))['box_mass2__sum']
+            table_data.append([i, m1, m2])
+        else:
+            table_data.append([i, 0, 0])
+    return table_data
+

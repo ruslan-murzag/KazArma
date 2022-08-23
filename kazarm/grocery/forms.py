@@ -1,5 +1,5 @@
 from django import forms
-from .models import First_stage, Product, Container
+from .models import First_stage, Product, Container, Tray
 
 
 class first_stage_form(forms.ModelForm):
@@ -60,9 +60,9 @@ class container_edit_form(forms.ModelForm):
             'mass1':('Вес продукта с тарой'),
             'status1': ('Статус'),
             'warehouse': ('Место'),
-            'mass2': ('Масса2'),
+            'mass2': ('Вес продукта с тарой'),
             'box_mass1':('Вес тары'),
-            'box_mass2':('Вторая масса бокса'),
+            'box_mass2':('Вес тары'),
             'stores': ('место отгрузки')
         }
 
@@ -72,3 +72,26 @@ class product_edit_form(forms.ModelForm):
         model = Product
         fields = ('title',)
         labels = {'title': 'Название'}
+
+
+class tray_create_form(forms.ModelForm):
+    class Meta:
+        model = Tray
+        fields = ('title', 'status', 'mass1', 'mass2', 'packing', 'warehouse', 'number_pr', 'stores')
+        labels = {
+            'title': ('Название продукта'),
+            'mass1': ('Вес продукта с поддоном'),
+            'mass2': ('Вес поддона'),
+            'status1': ('Статус'),
+            'status': ('Статус'),
+            'warehouse': ('Место'),
+            'packing': ('тип фасовки'),
+            'number_pr': ('количество'),
+            'stores': ('место отгрузки')
+        }
+
+
+class tray_edit_form(forms.ModelForm):
+    class Meta:
+        model = Tray
+        fields = ('status1', 'stores')

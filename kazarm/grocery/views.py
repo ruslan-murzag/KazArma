@@ -1,12 +1,14 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from .models import Product, First_stage, Container, Warehouse, Store
+from .models import Product, First_stage, Container, Warehouse, Store, Tray
 from .forms import *
 from django.urls import reverse
 from django.db.models import Avg, Count, Sum, Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 import datetime
+from .filters import TrayFilter
+from report.views import list_container
 
 
 @login_required
@@ -175,7 +177,7 @@ def warehouse_container_list(request, warehouse_id):
     warehouse = get_object_or_404(Warehouse, id=warehouse_id)
     title = warehouse.title
     containers = warehouse.container.all().order_by('-id')
-    containers = containers.filter(Q(status='Продажа') | Q(status='Склад'))
+    containers = containers.filter(Q(status='Отходы') | Q(status='Склад'))
     paginator = Paginator(containers, 50)
     page = request.GET.get('page')
     try:
@@ -255,8 +257,11 @@ def containers_list_by_date_update(request, year, month, day):
                   {'container_list': container_list,
                    'date': date})
 @login_required
-def containers_list_by_status(request, status):
-    container_list = Container.objects.filter(status=status).order_by('-id')
+def containers_list_by_status(request, num, status):
+    if num == 1:
+        container_list = Container.objects.filter(status=status).filter(status1=' ').order_by('-id')
+    else:
+        container_list = Container.objects.filter(status1=status).order_by('-id')
 
     paginator = Paginator(container_list, 20)
     page = request.GET.get('page')
@@ -334,3 +339,105 @@ def arrival_by_title(request, title):
                   {'arrivals_list': posts,
                    'page': page,
                    'title': title})
+
+
+@login_required
+def list_trays(request):
+    trays_list = Tray.objects.all().order_by('-id')
+    paginator = Paginator(trays_list, 10)
+    page = request.GET.get('page')
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer deliver the first page
+        posts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range deliver last page of results
+        posts = paginator.page(paginator.num_pages)
+
+    return render(request, 'grocery/trays/list.html', {'page': page, 'posts': posts})
+
+
+@login_required
+def tray_create(request):
+    if request.method == 'POST':
+        add_type_product = tray_create_form(data=request.POST)
+        if add_type_product.is_valid():
+            add_type_product = add_type_product.save(commit=False)
+            add_type_product.save()
+            return HttpResponseRedirect(reverse('grocery:trays_list'))
+    else:
+        add_type_product = tray_create_form()
+
+    return render(request, 'grocery/trays/tray_create.html', {
+        'post_form': add_type_product,
+    })
+
+
+@login_required
+def tray_filter(request):
+    tray = Tray.objects.all().order_by('-id')
+    myFilter = TrayFilter(request.GET, queryset=tray)
+    paginator = Paginator(myFilter.qs, 10)
+
+    table = tray_table(myFilter.qs)
+
+    page = request.GET.get('page')
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer deliver the first page
+        posts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range deliver last page of results
+        posts = paginator.page(paginator.num_pages)
+
+    return render(request, 'filter/filter_tray_page.html', {'page': page, 'myFilter': myFilter, 'posts': posts, 'table': table})
+
+
+def tray_table(trays):
+    product_list = Product.objects.all()
+    table = []
+    for i in product_list:
+        trays_list = trays.filter(title=i)
+        if trays_list:
+            netto = trays_list.aggregate(Sum('mass1'))['mass1__sum'] - trays_list.aggregate(Sum('mass2'))['mass2__sum']
+            bag = trays_list.filter(packing='Мешок')
+            net = trays_list.filter(packing='Сетка')
+            if bag:
+                type1 = bag.aggregate(Sum('number_pr'))['number_pr__sum']
+            else:
+                type1 = 0
+            if net:
+                type2 = net.aggregate(Sum('number_pr'))['number_pr__sum']
+            else:
+                type2 = 0
+
+            sum_type = type2 + type1
+        else:
+            netto = 0
+            type1 = 0
+            type2 = 0
+            sum_type = 0
+        table.append([i, netto, type1, type2, sum_type])
+    return table
+
+
+
+@login_required
+def tray_edit(request, id):
+    trays = get_object_or_404(Tray, id=id)
+
+    if request.method == 'POST':
+        product_form = tray_edit_form(data=request.POST, instance=trays)
+
+        if product_form.is_valid():
+            product_form = product_form.save(commit=False)
+            product_form.save()
+            return HttpResponseRedirect(reverse('grocery:trays_list'))
+    else:
+        product_form = tray_edit_form(instance=trays)
+
+    return render(request,
+                  'grocery/trays/tray_edit.html',
+                  {'post_form': product_form})

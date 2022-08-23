@@ -7,6 +7,8 @@
         <nav>
             <a class="btn btn-outline-primary" href="{% url 'grocery:container_create' %}">Создать контейнер</a>
             <a class="btn btn-outline-primary" href="{% url 'grocery:product_type_add' %}">Создать продукт</a>
+            <a class="btn btn-outline-primary" href="{% url 'report:filter_page' %}">Фильтр</a>
+
         </nav>
         <div class="table-responsive col-12">
         <h3>Таблица контейнеров</h3>
@@ -15,8 +17,10 @@
                 <tr>
                   <th>#</th>
                   <th>Продукт</th>
-                  <th>Время создания</th>
-                  <th>Время изменения</th>
+                  <th>Дата создания</th>
+                  <th>Время</th>
+                  <th>Дата изменения</th>
+                  <th>Время</th>
                   <th>Статус</th>
                   <th>Место нахождения</th>
                   <th>Брутто1</th>
@@ -32,13 +36,15 @@
                 <tr>
                     <td><a href="{% url 'grocery:container_edit' i.id %}">{{ i.id }}</a></td>
                     <td><a href="{% url 'grocery:containers_list_by_title' i.title.id %}">{{ i.title }}</a></td>
-                    <td><a href="{% url 'grocery:containers_list_by_date' year=i.created.year month=i.created.month day=i.created.day %}">{{ i.created }}</a></td>
-                    <td><a href="{% url 'grocery:containers_list_by_date_update' year=i.updated.year month=i.updated.month day=i.updated.day  %}">{{ i.updated }}</a></td>
-                    {% if i.status1 %}
-                        <td><a href="{% url 'grocery:containers_list_by_status' status=i.status%}">{{ i.status1 }}</a></td>
+                    <td><a href="{% url 'grocery:containers_list_by_date' year=i.created.year month=i.created.month day=i.created.day %}">{{ i.created|date:"d.m.y" }}</a></td>
+                    <td>{{ i.created|time}}</td>
+                    <td><a href="{% url 'grocery:containers_list_by_date_update' year=i.updated.year month=i.updated.month day=i.updated.day  %}">{{ i.updated|date:"d.m.y" }}</a></td>
+                    <td>{{ i.updated|time }}</td>
+                    {% if i.status1 != ' ' %}
+                        <td><a href="{% url 'grocery:containers_list_by_status' num=2 status=i.status1%}">{{ i.status1 }}</a></td>
 
                     {% else %}
-                        <td><a href="{% url 'grocery:containers_list_by_status' status=i.status%}">{{ i.status }}</a></td>
+                        <td><a href="{% url 'grocery:containers_list_by_status' num=1 status=i.status%}">{{ i.status }}</a></td>
                     {% endif %}
                     <td><a href="{% url 'grocery:warehouse_containers_list' i.warehouse.id  %}">{{ i.warehouse }}</a></td>
                     <td>{{ i.mass1 }}</td>

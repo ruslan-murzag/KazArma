@@ -22,7 +22,7 @@ urlpatterns = [
     path('containers/list/date/update/<int:year>/<int:month>/<int:day>', views.containers_list_by_date_update,
          name='containers_list_by_date_update'),
 
-    path('containers/list/status/<str:status>', views.containers_list_by_status, name='containers_list_by_status'),
+    path('containers/list/status/<int:num>/<str:status>', views.containers_list_by_status, name='containers_list_by_status'),
 
     path('arrivals/date/create/<int:year>/<int:month>/<int:day>', views.arrival_by_date_create, name='arrivals_date_create'),
     path('arrivals/date/update/<int:year>/<int:month>/<int:day>', views.arrival_by_date_update,
@@ -30,4 +30,9 @@ urlpatterns = [
     path('arrivals/<str:auto>', views.arrival_by_auto, name='arrivals_by_auto'),
     path('arrivals/title/<str:title>', views.arrival_by_title, name='arrivals_by_title'),
 
+
+    path('trays/', views.list_trays, name='trays_list'),
+    path('trays/create/', views.tray_create, name='tray_create'),
+    path('trays/filter/', views.tray_filter, name='tray_filter'),
+    path('trays/edit/<int:id>', views.tray_edit, name='tray_edit')
 ]
