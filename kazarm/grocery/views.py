@@ -7,7 +7,7 @@ from django.db.models import Avg, Count, Sum, Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 import datetime
-from .filters import TrayFilter
+from .filters import TrayFilter, ArrivalFilter
 from report.views import list_container
 
 
@@ -178,7 +178,7 @@ def warehouse_container_list(request, warehouse_id):
     title = warehouse.title
     containers = warehouse.container.all().order_by('-id')
     containers = containers.filter(Q(status='Отходы') | Q(status='Склад'))
-    paginator = Paginator(containers, 50)
+    paginator = Paginator(containers, 30)
     page = request.GET.get('page')
     try:
         posts = paginator.page(page)
@@ -189,18 +189,62 @@ def warehouse_container_list(request, warehouse_id):
         # If page is out of range deliver last page of results
         posts = paginator.page(paginator.num_pages)
 
+
+    trays = Tray.objects.filter(status='Склад').filter(status1=' ').order_by('-id')
+
+    paginator1 = Paginator(trays, 30)
+    page1 = request.GET.get('page')
+    try:
+        posts1 = paginator1.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer deliver the first page
+        posts1 = paginator1.page(1)
+    except EmptyPage:
+        # If page is out of range deliver last page of results
+        posts1 = paginator1.page(paginator.num_pages)
+
+
     return render(request,
                   'grocery/warehouse/list_containers.html',
                   {'page': page,
                    'posts': posts,
-                   'title': title
+                   'title': title,
+                   'page1': page1,
+                   'posts1': posts1
                    })
 
 
 @login_required
 def warehouse_list(request):
     warehouses = Warehouse.objects.all()
-    paginator = Paginator(warehouses, 30)
+    table = []
+    for i in warehouses:
+        container_list = i.container.filter(status='Склад').filter(status1=' ')
+        tray_list = i.tray.filter(status='Склад').filter(status1=' ')
+        if container_list:
+            container_mass = container_list.aggregate(Sum('mass1'))['mass1__sum'] - container_list.aggregate(Sum('box_mass1'))['box_mass1__sum']
+        else:
+            container_mass = 0
+
+        if tray_list:
+            tray_mass = tray_list.aggregate(Sum('mass1'))['mass1__sum'] - tray_list.aggregate(Sum('mass2'))['mass2__sum']
+        else:
+            tray_mass = 0
+
+        tray_net = tray_list.filter(packing='Сетка')
+        tray_bag = tray_list.filter(packing='Мешок')
+        if tray_net:
+            tray_net_num = tray_list.filter(packing='Сетка').aggregate(Sum('number_pr'))['number_pr__sum']
+        else:
+            tray_net_num = 0
+        if tray_bag:
+            tray_bag_num = tray_list.filter(packing='Мешок').aggregate(Sum('number_pr'))['number_pr__sum']
+        else:
+            tray_bag_num = 0
+
+        table.append([i, container_mass, tray_mass, tray_net_num, tray_bag_num])
+
+    paginator = Paginator(table, 30)
     page = request.GET.get('page')
     try:
         posts = paginator.page(page)
@@ -441,3 +485,35 @@ def tray_edit(request, id):
     return render(request,
                   'grocery/trays/tray_edit.html',
                   {'post_form': product_form})
+
+
+@login_required
+def arrival_filter(request):
+    arrivals = First_stage.objects.all().order_by('-id')
+    myFilter = ArrivalFilter(request.GET, queryset=arrivals)
+    paginator = Paginator(myFilter.qs, 10)
+
+    products = Product.objects.all()
+    calc_mass = []
+    different_mass = 0
+    for i in products:
+        all_obj = myFilter.qs.filter(title=i)
+        if all_obj:
+            different_mass = all_obj.aggregate(Sum('first_m'))['first_m__sum'] - all_obj.aggregate(Sum('second_m'))[
+                'second_m__sum']
+        else:
+            different_mass = 0
+        calc_mass.append([i.title, different_mass])
+
+    page = request.GET.get('page')
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer deliver the first page
+        posts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range deliver last page of results
+        posts = paginator.page(paginator.num_pages)
+
+    return render(request, 'filter/filter_arrival_page.html', {'page': page, 'myFilter': myFilter, 'posts': posts, 'table': calc_mass})
+

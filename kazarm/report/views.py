@@ -31,7 +31,7 @@ def report(request, year, month, day):
             date_list2.append([i, len(store_item)])
 
     return render(request,
-                  'grocery/time_report/report.html',
+                  'time_report/report.html',
                   {'data_list': data_list,
                    'data_list2': date_list2,
                    'date': date})
@@ -40,7 +40,6 @@ def report(request, year, month, day):
 @login_required
 def stores(request):
     stores = Store.objects.all()
-
     return render(request,
                   'grocery/stores/stores.html',
                   {'stores': stores})
@@ -119,7 +118,7 @@ def calc_day(request):
         data_list2.append([data, netto2, different_1, trays_netto, trays_netto - netto2])
 
     return render(request,
-                  'grocery/time_report/day.html',
+                  'time_report/day.html',
                   {'data_list1': data_list1,
                    'data_list2': data_list2,
                    })
@@ -151,7 +150,7 @@ def first_stage_day_report(request, year, month, day):
             netto = 0
         arrivals_calc.append([i, netto])
 
-    return render(request, 'grocery/time_report/first_stage_day_report.html',
+    return render(request, 'time_report/first_stage_day_report.html',
                   {'container_list': container_list,
                    'arrivals': arrivals,
                    'date': date,
@@ -166,7 +165,7 @@ def second_stage_day_report(request, year, month, day):
     date = datetime.datetime(year=year, month=month, day=day)
     product_list = Product.objects.all()
     product_sort_calc = []
-
+    trays_product_calc = []
     tray_list = Tray.objects.filter(created__year=year, created__month=month, created__day=day).filter(status='Склад')
 
     for i in product_list:
@@ -181,13 +180,20 @@ def second_stage_day_report(request, year, month, day):
             diff1 = 0
         product_sort_calc.append([i, netto1, netto2, diff1])
 
+        items2 = tray_list.filter(title=i)
+        if items2:
+            netto1 = items2.aggregate(Sum('mass1'))['mass1__sum'] - items2.aggregate(Sum('mass2'))['mass2__sum']
+        else:
+            netto1 = 0
+        trays_product_calc.append([i.title, netto1])
     return render(request,
-                  'grocery/time_report/second_stage_day_report.html',
+                  'time_report/second_stage_day_report.html',
 
                   {'container_list_sort': container_list_sort,
                    'date': date,
                    'product_sort_calc': product_sort_calc,
-                   'tray_list': tray_list})
+                   'tray_list': tray_list,
+                   'trays_product_calc': trays_product_calc})
 
 
 @login_required

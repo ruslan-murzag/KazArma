@@ -17,8 +17,8 @@
         </div>
         <div class="row mt-2 mb-2">
             <nav>
-            <a class="btn btn-outline-primary" href="{% url 'grocery:tray_create' %}">Создать поддон</a>
-            <a class="btn btn-outline-primary" href="{% url 'grocery:product_type_add' %}">Создать продукт</a>
+                <a class="btn btn-outline-primary" href="{% url 'grocery:f_s_create' %}">Создать запись</a>
+                <a class="btn btn-outline-primary" href="{% url 'grocery:product_type_add' %}">Создать продукт</a>
             </nav>
 
         </div>
@@ -29,35 +29,25 @@
                         <tr>
                             <th>#</th>
                             <th>Продукт</th>
-                            <th>Дата создания</th>
+                            <th>Номер машины</th>
+                            <th>Дата прихода</th>
                             <th>Время</th>
-                            <th>Дата изменения</th>
+                            <th>Дата ухода</th>
                             <th>Время</th>
-                            <th>Статус</th>
-                            <th>Место нахождения</th>
-                            <th>Фасовка</th>
-                            <th>Количество</th>
-                            <th>Масса</th>
+                            <th>Масса груза(кг)</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for i in posts %}
                             <tr>
-                                <td><a href="{% url 'grocery:tray_edit' i.id %}">{{ i.id }}</a></td>
-                                <td>{{ i.title }}</td>
-                                <td>{{ i.created|date:"d.m.y" }}</td>
-                                <td>{{ i.created|time}}</td>
-                                <td>{{ i.updated|date:"d.m.y" }}</td>
-                                <td>{{ i.updated|time }}</td>
-                                {% if i.status1 != ' ' %}
-                                    <td>{{ i.status1 }}</td>
-                                {% else %}
-                                    <td>{{ i.status }}</td>
-                                {% endif %}
-                                <td>{{ i.warehouse }}</td>
-                                <td>{{ i.packing }}</td>
-                                <td>{{ i.number_pr }}</td>
-                                <td>{{ i.calc_netto }}</td>
+                                <td><a href="{% url 'grocery:f_s_edit' i.id %}">{{ i.id }}</a></td>
+                                <td><a href="{% url 'grocery:arrivals_by_title' title=i.title.id %}">{{ i.title }}</a></td>
+                                <td><a href="{% url 'grocery:arrivals_by_auto' auto=i.numbers_auto %}">{{ i.numbers_auto }}</a></td>
+                                <td><a href="{% url 'grocery:arrivals_date_create' year=i.created.year month=i.created.month day=i.created.day %}">{{ i.created|date:"d.m.y" }}</a></td>
+                                <td>{{ i.created.time }}</td>
+                                <td><a href="{% url 'grocery:arrivals_date_update' year=i.updated.year month=i.updated.month day=i.updated.day %}">{{ i.updated|date:"d.m.y" }}</a></td>
+                                <td>{{ i.updated.time }}</td>
+                                <td>{{ i.calc }}</td>
                             </tr>
                         {% endfor %}
                         {% include "pagination.html" with page=posts %}
@@ -73,10 +63,7 @@
                 <thead>
                     <tr>
                         <th>Продукт</th>
-                        <th>Нетто</th>
-                        <th>Мешков</th>
-                        <th>Сеток</th>
-                        <th>Общее</th>
+                        <th>Масса</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -85,9 +72,6 @@
                         <tr>
                             <td>{{ i.0 }}</td>
                             <td>{{ i.1 }}</td>
-                            <td>{{ i.2 }}</td>
-                            <td>{{ i.3 }}</td>
-                            <td>{{ i.4 }}</td>
                         </tr>
                         {% endif %}
                     {% endfor %}

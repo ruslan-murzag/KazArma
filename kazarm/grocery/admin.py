@@ -22,9 +22,9 @@ class ContainerAdmin(admin.ModelAdmin):
     ordering = ('status', 'title')
 
 
-# @admin.register(Tray)
-# class TrayAdmin(admin.ModelAdmin):
-#     list_display = ('id', 'title', 'created', 'updated', 'warehouse', 'status')
-#     list_filter = ('status', 'title', 'created', 'updated', 'warehouse')
-#     search_fields = ['id', 'status', 'title__title']
-#     ordering = ('status', 'title')
+@admin.register(Tray)
+class TrayAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'created', 'updated', 'warehouse', 'status')
+    list_filter = ('status', 'title', 'created', 'updated', 'warehouse')
+    search_fields = ['id', 'status', 'title__title']
+    ordering = ('status', 'title')

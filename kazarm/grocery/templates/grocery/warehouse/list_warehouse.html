@@ -13,20 +13,24 @@
         <table class="table table-striped table-sm">
             <thead>
                 <tr>
-                    <th>#</th>
                     <th>Продукт</th>
                     <th>Контейнеры(склад)</th>
                     <th>Склад масса</th>
+                    <th>Масса Поддонов</th>
+                    <th>Сетка</th>
+                    <th>Мешки</th>
                 </tr>
             </thead>
             <tbody>
                 {% for i in posts %}
                 <tr>
                 {% if i.title != 'Отходы' %}
-                    <td>{{ i.id }}</td>
-                    <td><a href="{% url 'grocery:warehouse_containers_list' i.id %}">{{ i.title }}</a></td>
-                    <td>{{ i.warehouse_len }}</td>
-                    <td>{{ i.container_mass.0 }}</td>
+                    <td><a href="{% url 'grocery:warehouse_containers_list' i.0.id %}">{{ i.0.title }}</a></td>
+                    <td>{{ i.0.warehouse_len }}</td>
+                    <td>{{ i.1 }}</td>
+                    <td>{{ i.2 }}</td>
+                    <td>{{ i.3 }}</td>
+                    <td>{{ i.4 }}</td>
                 {% endif %}
                 </tr>
                 {% endfor %}

@@ -18,11 +18,11 @@ class ContainerFilter(django_filters.FilterSet):
     start_date = DateFilter(label='Создан от', field_name='created', lookup_expr='gte')
     end_date = DateFilter(label='Создан до', field_name='created', lookup_expr='lte')
 
-    start_date1 = DateFilter(label='Изменен от', field_name='created', lookup_expr='gte')
-    end_date1 = DateFilter(label='Изменен до', field_name='created', lookup_expr='lte')
-
+    start_date1 = DateFilter(label='Изменен от', field_name='updated', lookup_expr='gte')
+    end_date1 = DateFilter(label='Изменен до', field_name='updated', lookup_expr='lte')
 
     class Meta:
         model = Container
         fields = ('title', 'status', 'status1', 'warehouse', 'start_date', 'end_date', 'start_date1', 'end_date1')
+
 

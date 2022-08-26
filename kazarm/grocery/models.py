@@ -52,23 +52,8 @@ class Warehouse(models.Model):
 
     def warehouse_len(self):
         # return 'Hello world'
-        return len(self.container.all().filter(status='Склад'))
+        return len(self.container.filter(status='Склад').filter(status1=' '))
 
-    def warehouse_sell_len(self):
-        return len(self.container.all().filter(status='Продажа'))
-
-    def container_mass(self):
-        containers_warehouse = self.container.all().filter(status='Склад')
-        containers_sales = self.container.all().filter(status='Продажа')
-        massa_warehouse = 0
-        massa_sales = 0
-
-        for i in containers_warehouse:
-            massa_warehouse += i.calc_netto1()
-        for i in containers_sales:
-            massa_sales += i.calc_netto1()
-
-        return [massa_warehouse, massa_sales]
     class Meta:
         verbose_name = 'Склад'
         verbose_name_plural = 'Склад'

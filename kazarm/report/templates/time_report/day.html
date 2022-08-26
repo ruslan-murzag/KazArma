@@ -46,8 +46,8 @@
                     <th>Дата</th>
                     <th>Нетто Сортировки</th>
                     <th>Потеря первой сортировки</th>
-{#                    <th>Нетто Поддонов</th>#}
-{#                    <th>Потеря второй сортировки</th>#}
+                    <th>Нетто Поддонов</th>
+                    <th>Потеря второй сортировки</th>
                 </tr>
             </thead>
             <tbody>
@@ -57,8 +57,8 @@
                     <td><a href="{% url 'report:second_day_report' year=i.0.year month=i.0.month day=i.0.day %}">{{ i.0|date:"d.m.y" }}</a></td>
                     <td>{{ i.1}}</td>
                     <td>{{ i.2 }}</td>
-{#                    <td>{{ i.3 }}</td>#}
-{#                    <td>{{ i.4 }}</td>#}
+                    <td>{{ i.3 }}</td>
+                    <td>{{ i.4 }}</td>
                 </tr>
             {% endfor %}
             </tbody>
