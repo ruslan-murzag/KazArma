@@ -48,9 +48,9 @@ def stores(request):
 @login_required
 def report_store(request, id):
     store = get_object_or_404(Store, id=id)
-    store_container = store.containers.all().order_by('-id')
+    store_trays = store.tray.all().order_by('-id')
 
-    paginator = Paginator(store_container, 20)
+    paginator = Paginator(store_trays, 20)
     page = request.GET.get('page')
     try:
         posts = paginator.page(page)
@@ -60,11 +60,12 @@ def report_store(request, id):
     except EmptyPage:
         # If page is out of range deliver last page of results
         posts = paginator.page(paginator.num_pages)
+
     return render(request,
                   'grocery/stores/store_report.html',
-                  {'store_container': posts,
+                  {'posts': posts,
                    'page': page,
-                   'store': store, })
+                   'store': store})
 
 
 @login_required

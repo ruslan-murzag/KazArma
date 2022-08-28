@@ -19,7 +19,7 @@ def first_stage_list(request):
     calc_mass = []
     different_mass = 0
     for i in products:
-        all_obj = First_stage.objects.filter(created__day=today.day).filter(title=i)
+        all_obj = First_stage.objects.filter(created__year=today.year, created__month=today.month, created__day=today.day,).filter(title=i)
         if all_obj:
             different_mass = all_obj.aggregate(Sum('first_m'))['first_m__sum'] - all_obj.aggregate(Sum('second_m'))[
                 'second_m__sum']
