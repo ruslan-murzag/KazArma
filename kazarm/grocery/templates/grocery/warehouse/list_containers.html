@@ -19,9 +19,10 @@
                   <th>Время изменения</th>
                   <th>Статус</th>
                   <th>Место нахождения</th>
-                  <th>Масса ДО</th>
-                  <th>Масс После</th>
-                  <th>Брутто</th>
+                  <th>Брутто1</th>
+                  <th>Нетто1</th>
+                  <th>Брутто2</th>
+                  <th>Нетто2</th>
                   <th>Разница </th>
                 </tr>
             </thead>
@@ -35,8 +36,10 @@
                   <td>{{ i.status }}</td>
                   <td>{{ i.warehouse }}</td>
                   <td>{{ i.mass1 }}</td>
-                  <td>{{ i.mass2 }}</td>
                   <td>{{ i.calc_netto1 }}</td>
+                  <td>{{ i.mass2 }}</td>
+                  <td>{{ i.calc_netto2 }}</td>
+
                   {% if i.mass2 == 0 %}
                         <td>0</td>
                   {% else %}

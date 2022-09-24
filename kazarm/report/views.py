@@ -76,7 +76,7 @@ def calc_day(request):
 
     prods = Product.objects.all()
     container_list = Container.objects.all()
-    for i in range(0, 10):
+    for i in range(0, 7):
         data = today - datetime.timedelta(days=i)
         f_s_obj = First_stage.objects.all().filter(created__year=data.year, created__month=data.month, created__day=data.day)
         containers_obj = container_list.filter(created__year=data.year, created__month=data.month, created__day=data.day).filter(Q(status='Склад'))
